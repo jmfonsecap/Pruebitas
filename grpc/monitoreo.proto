@@ -1,0 +1,14 @@
+syntax = "proto3";
+
+message NoRequest{
+}
+
+message EasyRequest{
+    string package = 1;
+}
+
+message HardRequest{
+    string package = 1;
+    string container = 2;
+}
+
