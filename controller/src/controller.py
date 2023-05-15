@@ -1,7 +1,14 @@
 import boto3
 import boto3.session
-import time
+from concurrent import futures
+import json
+import grpc
+import Service_pb2
+import Service_pb2_grpc
+
+HOST = '[::]:8080'
 my_session = boto3.session.Session()
+
 
 oldInstances=[]
 newInstances=[]
@@ -16,7 +23,6 @@ def create_ec2_instance():
     get_old_instances()
     try:
         print ("Creating EC2 instance")
-        print("Hola")
         resource_ec2.run_instances(
             ImageId="ami-0242669d1b95f4db5",
             MinCount=1,
@@ -55,14 +61,39 @@ def get_ipv4(instance_id):
     response = resource_ec2.describe_instances(InstanceIds=[instance_id])
     ipv4_publico = response['Reservations'][0]['Instances'][0]['PublicIpAddress']
     print(f"La dirección IPv4 pública de la instancia {instance_id} es {ipv4_publico}")
+    return [instance_id, ipv4_publico]
 
 def terminate_ec2_instance(instance_id):
     try:
         print ("Terminate EC2 instance")
         print(resource_ec2.terminate_instances(InstanceIds=[instance_id]))
+        newInstances.remove(instance_id)
+        return "Instacia " + instance_id+ " terminada"
     except Exception as e:
         print(e)
+        return 
 
-create_ec2_instance()
-get_ipv4(newInstances[0])
-print(newInstances)
+def minimum_instances():
+    if len(newInstances)<2:
+        while len(newInstances)<2: 
+            create_ec2_instance()
+#\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\
+
+
+class ProductService(Service_pb2_grpc.ProductServiceServicer):
+    def AddProduct(self, request, context):
+        create_ec2_instance()
+        idCreated=newInstances[-1]
+        return Service_pb2.TransactionResponse(status_code=1)
+
+def serve():
+    server = grpc.server(futures.ThreadPoolExecutor(max_workers=10))
+    Service_pb2_grpc.add_ProductServiceServicer_to_server(ProductService(), server)
+    print(HOST)
+    server.add_insecure_port(HOST)
+    print("Service is running... ")
+    server.start()
+    server.wait_for_termination()
+
+if __name__ == "__main__":
+    serve()
