@@ -86,7 +86,7 @@ def Ping(ipv4_publica):
         response = stub.Ping(controller_pb2.Nada())
     return response
             
-if _name_ == "_main_":
+if __name__ == "_main_":
     starttime = time.time()
     while True:
         minimum_instances()
