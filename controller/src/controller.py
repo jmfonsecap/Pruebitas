@@ -108,7 +108,7 @@ def serve():
                 if response.status_code==0:
                     print(ip+" esta activa y la ocupacion de su cpu es de "+ str(response.cpu_usage))
                     if response.cpu_usage>50 and response.cpu_usage<80:
-                        if contador<4 and len(newInstances)<4:
+                        if contador<4 or len(newInstances)<4:
                             create_ec2_instance()
                     elif response.cpu_usage>80:
                         terminate_ec2_instance(instance)
