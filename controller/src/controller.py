@@ -2,9 +2,10 @@ import boto3
 import boto3.session
 from concurrent import futures
 import json
+import time
 import grpc
-import Service_pb2
-import Service_pb2_grpc
+import controller_pb2
+import controller_pb2_grpc
 
 HOST = '[::]:8080'
 my_session = boto3.session.Session()
@@ -61,7 +62,7 @@ def get_ipv4(instance_id):
     response = resource_ec2.describe_instances(InstanceIds=[instance_id])
     ipv4_publico = response['Reservations'][0]['Instances'][0]['PublicIpAddress']
     print(f"La dirección IPv4 pública de la instancia {instance_id} es {ipv4_publico}")
-    return [instance_id, ipv4_publico]
+    return ipv4_publico
 
 def terminate_ec2_instance(instance_id):
     try:
@@ -79,21 +80,25 @@ def minimum_instances():
             create_ec2_instance()
 #\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\
 
-
-class ProductService(Service_pb2_grpc.ProductServiceServicer):
-    def AddProduct(self, request, context):
-        create_ec2_instance()
-        idCreated=newInstances[-1]
-        return Service_pb2.TransactionResponse(status_code=1)
-
-def serve():
-    server = grpc.server(futures.ThreadPoolExecutor(max_workers=10))
-    Service_pb2_grpc.add_ProductServiceServicer_to_server(ProductService(), server)
-    print(HOST)
-    server.add_insecure_port(HOST)
-    print("Service is running... ")
-    server.start()
-    server.wait_for_termination()
-
-if __name__ == "__main__":
-    serve()
+def Ping(ipv4_publica):
+    with grpc.insecure_channel(ipv4_publica+":8080") as channel:
+        stub = controller_pb2_grpc.controllerStub(channel)
+        response = stub.Ping(controller_pb2.Nada())
+    return response
+            
+if _name_ == "_main_":
+    starttime = time.time()
+    while True:
+        minimum_instances()
+        for instance in newInstances:
+            ip = get_ipv4(instance)
+            response= Ping(ip)
+            if response.status_code==0:
+                print(ip+" esta activa y la ocupacion de su cpu es de "+ response.cpu_usage)
+                if response.cpu_usage>50 and len(newInstances)<4 :
+                    create_ec2_instance()
+                elif response.cpu_usage>80:
+                    terminate_ec2_instance(instance)
+            elif response.status_coded==1:
+                print(ip+" esta caida" )
+        time.sleep(30.0-((time.time() - starttime) % 30.0))

@@ -1,0 +1,13 @@
+syntax = "proto3";
+
+service controller {
+  rpc Ping (Nada) returns (Response) {}
+  rpc GetMettrics(Nada) returns (Response) {}
+}
+
+message Nada{}
+
+message Response{
+  int32 status_code = 1;
+  int32 cpu_usage =2;
+}
