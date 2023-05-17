@@ -1,3 +1,4 @@
+import logging
 import boto3
 import boto3.session
 from concurrent import futures
@@ -85,20 +86,25 @@ def Ping(ipv4_publica):
         stub = controller_pb2_grpc.controllerStub(channel)
         response = stub.Ping(controller_pb2.Nada())
     return response
-            
-if __name__ == "_main_":
+def serve():
     starttime = time.time()
     while True:
         minimum_instances()
-        for instance in newInstances:
-            ip = get_ipv4(instance)
-            response= Ping(ip)
-            if response.status_code==0:
-                print(ip+" esta activa y la ocupacion de su cpu es de "+ response.cpu_usage)
-                if response.cpu_usage>50 and len(newInstances)<4 :
-                    create_ec2_instance()
-                elif response.cpu_usage>80:
-                    terminate_ec2_instance(instance)
-            elif response.status_coded==1:
-                print(ip+" esta caida" )
+        print("waiting for instances to launch")
+        time.sleep(50)
+        
+        ip = ""
+        response= Ping(ip)
+        if response.status_code==0:
+            print(ip+" esta activa y la ocupacion de su cpu es de "+ response.cpu_usage)
+            if response.cpu_usage>50 and len(newInstances)<4 :
+                print("creando instancia")
+            elif response.cpu_usage>80:
+                print("borrando instancia")
+        else:
+            print(" esta caida" )
         time.sleep(30.0-((time.time() - starttime)%30.0))
+
+if __name__ == '__main__':
+    logging.basicConfig()
+    serve()

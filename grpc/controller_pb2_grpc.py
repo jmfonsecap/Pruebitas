@@ -2,10 +2,10 @@
 """Client and server classes corresponding to protobuf-defined services."""
 import grpc
 
-import monitoreo_pb2 as monitoreo__pb2
+import controller_pb2 as controller__pb2
 
 
-class monitoreoStub(object):
+class controllerStub(object):
     """Missing associated documentation comment in .proto file."""
 
     def __init__(self, channel):
@@ -14,42 +14,42 @@ class monitoreoStub(object):
         Args:
             channel: A grpc.Channel.
         """
-        self.vigilancia = channel.unary_unary(
-                '/monitoreo/vigilancia',
-                request_serializer=monitoreo__pb2.NoRequest.SerializeToString,
-                response_deserializer=monitoreo__pb2.EasyRequest.FromString,
+        self.Ping = channel.unary_unary(
+                '/controller/Ping',
+                request_serializer=controller__pb2.Nada.SerializeToString,
+                response_deserializer=controller__pb2.Response.FromString,
                 )
 
 
-class monitoreoServicer(object):
+class controllerServicer(object):
     """Missing associated documentation comment in .proto file."""
 
-    def vigilancia(self, request, context):
+    def Ping(self, request, context):
         """Missing associated documentation comment in .proto file."""
         context.set_code(grpc.StatusCode.UNIMPLEMENTED)
         context.set_details('Method not implemented!')
         raise NotImplementedError('Method not implemented!')
 
 
-def add_monitoreoServicer_to_server(servicer, server):
+def add_controllerServicer_to_server(servicer, server):
     rpc_method_handlers = {
-            'vigilancia': grpc.unary_unary_rpc_method_handler(
-                    servicer.vigilancia,
-                    request_deserializer=monitoreo__pb2.NoRequest.FromString,
-                    response_serializer=monitoreo__pb2.EasyRequest.SerializeToString,
+            'Ping': grpc.unary_unary_rpc_method_handler(
+                    servicer.Ping,
+                    request_deserializer=controller__pb2.Nada.FromString,
+                    response_serializer=controller__pb2.Response.SerializeToString,
             ),
     }
     generic_handler = grpc.method_handlers_generic_handler(
-            'monitoreo', rpc_method_handlers)
+            'controller', rpc_method_handlers)
     server.add_generic_rpc_handlers((generic_handler,))
 
 
  # This class is part of an EXPERIMENTAL API.
-class monitoreo(object):
+class controller(object):
     """Missing associated documentation comment in .proto file."""
 
     @staticmethod
-    def vigilancia(request,
+    def Ping(request,
             target,
             options=(),
             channel_credentials=None,
@@ -59,8 +59,8 @@ class monitoreo(object):
             wait_for_ready=None,
             timeout=None,
             metadata=None):
-        return grpc.experimental.unary_unary(request, target, '/monitoreo/vigilancia',
-            monitoreo__pb2.NoRequest.SerializeToString,
-            monitoreo__pb2.EasyRequest.FromString,
+        return grpc.experimental.unary_unary(request, target, '/controller/Ping',
+            controller__pb2.Nada.SerializeToString,
+            controller__pb2.Response.FromString,
             options, channel_credentials,
             insecure, call_credentials, compression, wait_for_ready, timeout, metadata)
