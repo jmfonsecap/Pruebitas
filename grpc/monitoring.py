@@ -33,7 +33,7 @@ def serve():
           capacidad_cpu = increase_number_every_second(capacidad_cpu)
           capacidad = capacidad_cpu
           print(capacidad)
-          time.sleep(5)
+          time.sleep(10)
   server.wait_for_termination()
   
   
