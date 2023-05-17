@@ -101,4 +101,4 @@ if __name__ == "_main_":
                     terminate_ec2_instance(instance)
             elif response.status_coded==1:
                 print(ip+" esta caida" )
-        time.sleep(30.0-((time.time() - starttime) % 30.0))
+        time.sleep(30.0-((time.time() - starttime)%30.0))
