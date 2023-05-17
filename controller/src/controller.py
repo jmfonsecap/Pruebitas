@@ -14,11 +14,12 @@ my_session = boto3.session.Session()
 
 oldInstances=[]
 newInstances=[]
+contador = 0
 
 resource_ec2 = boto3.client("ec2", 
-                            aws_access_key_id="ASIATJHWQLIKB7OJFC73",
-                            aws_secret_access_key="GabhRTwNrAEkns+SiPGVPAIfAUpKLDSd+QriLRrz",
-                            aws_session_token="FwoGZXIvYXdzEC0aDO/dfkzGTx9jxnF24CLIAZk1L/2rCfnwG48JwpT4ptqHJZdTAWx9EJcrig+O/0O+e84cjD6nyDMedCn0DLby9VWDq3lmCJX27Rm4r7V1WFvwB3SABRMnlcPtVVZ7DKtTGyoR/P3yA300w7lR/hgL/OrJofTSmoqe8Gj5atUr0FmpiRl5BiznG9CpuJrezji3BIdFoLFbWnNeuAYcNXFnuYoL2nAFSBVOxJ4bEa91aVrCpjSnX4bdq+Mof/n3smoRM2DfXs3qxrboGRRpRrya2+qgDYE/OgoaKOTwkqMGMi3Et/4FkonLNk9rmmemYFBjTI1QajvOxYjeiYyyDyE7IcfpoF3gDy6Aka37dys=",
+                            aws_access_key_id="ASIATJHWQLIKHMRBX33N",
+                            aws_secret_access_key="Lxuhfw/1QbplOPLiGVdcV3mZysdm11iJdEksyDVV",
+                            aws_session_token="FwoGZXIvYXdzEDEaDDSofgEtCoULlhPnYCLIAXh0RZwJrFppEd0BgIb1DbdWAMyAEB+gSRuakWd3F7SU96QokZd81Tj+r1XUkL7AVQMKiLnFv8Zomx8tGyLV6s/8niMcCTOsXTBRvAjDA5c6jtZs91dL3XQkFJ1YR0aUSP0fIX28BNWRW1pxJcDTO/JL+0q5bhBR8KCd2JU1xBEyrI3+nXNZyMd1j9rfgsni5qROvapb9tROvF6GrQxruaS4s1/83iJcoLY9jI0IQXCMZQ68slJzMGAlf5OwRS4c6FKJqmFfJvBKKIbik6MGMi3714yu6tchfkRxGZA64fHfomou8lwyYqhADsbTofRZO5zXQ/e1O+lm9e60IBo=",
                             region_name='us-east-1')
 
 lt = {
@@ -35,6 +36,7 @@ def create_ec2_instance():
             MaxCount=1,
             InstanceType="t2.micro",
             KeyName="TeleKey")
+        contador=contador+1
         get_new_instance()
         
     except Exception as e:
@@ -74,20 +76,21 @@ def terminate_ec2_instance(instance_id):
         print ("Terminate EC2 instance")
         print(resource_ec2.terminate_instances(InstanceIds=[instance_id]))
         newInstances.remove(instance_id)
+        contador=contador-1
         return "Instacia " + instance_id+ " terminada"
     except Exception as e:
         print(e)
         return 
 
 def minimum_instances():
-    if len(newInstances)<2:
-        while len(newInstances)<2: 
+    if len(newInstances)<2 or contador<2:
+        while len(newInstances)<2 or contador<2: 
             create_ec2_instance()
             time.sleep(10)
 #\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\
 
 def Ping(ipv4_publica):
-    with grpc.insecure_channel(ipv4_publica+":5000") as channel:
+    with grpc.insecure_channel(ipv4_publica+":8080") as channel:
         stub = controller_pb2_grpc.controllerStub(channel)
         response = stub.Ping(controller_pb2.Nada())
     return response
@@ -95,7 +98,7 @@ def serve():
     starttime = time.time()
     minimum_instances()
     print("waiting for instances to launch")
-    time.sleep(120)
+    time.sleep(180)
     while True:
         minimum_instances()
         for instance in newInstances:
@@ -104,19 +107,20 @@ def serve():
                 response= Ping(ip)
                 if response.status_code==0:
                     print(ip+" esta activa y la ocupacion de su cpu es de "+ str(response.cpu_usage))
-                    if response.cpu_usage>50 and len(newInstances)<4 and response.cpu_usage<80:
-                        create_ec2_instance()
+                    if response.cpu_usage>50 and response.cpu_usage<80:
+                        if contador<4 and len(newInstances)<4:
+                            create_ec2_instance()
                     elif response.cpu_usage>80:
                         terminate_ec2_instance(instance)
-            except Exception as e:
-                print(e)
+            except:
+                print(ip+" esta prendiendo")
             
         time.sleep(30.0-((time.time() - starttime)%30.0))
-    
+
 def serve2():
+    starttime = time.time()
     while True:
-        starttime = time.time()
-        ip = "54.172.209.59"
+        ip ="3.93.20.58"
         try:
             response= Ping(ip)
             if response.status_code==0:
@@ -129,9 +133,8 @@ def serve2():
                     print("hola")
         except Exception as e:
             print(e)
-
-        time.sleep(5.0-((time.time() - starttime)%5.0))
-
+        
+        time.sleep(5.0-((time.time() - starttime)%5.0))        
 if __name__ == '__main__':
     logging.basicConfig()
-    serve2()
+    serve()

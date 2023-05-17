@@ -22,18 +22,18 @@ def increase_number_every_second(number):
 
 def serve():
   global capacidad
-  port ='5000'
+  port ='8080'
   server = grpc.server(futures.ThreadPoolExecutor(max_workers=10))
   controller_pb2_grpc.add_controllerServicer_to_server(controller(), server)
   server.add_insecure_port('[::]:' + port)
-  print("Service is running... ")
+  print("Service is running... " +port)
   server.start()
   capacidad_cpu = 0
   while True:
           capacidad_cpu = increase_number_every_second(capacidad_cpu)
           capacidad = capacidad_cpu
           print(capacidad)
-          time.sleep(1)
+          time.sleep(5)
   server.wait_for_termination()
   
   
