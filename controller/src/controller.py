@@ -14,7 +14,6 @@ my_session = boto3.session.Session()
 
 oldInstances=[]
 newInstances=[]
-contador = 0
 
 resource_ec2 = boto3.client("ec2", 
                             aws_access_key_id="ASIATJHWQLIKHMRBX33N",
@@ -36,7 +35,7 @@ def create_ec2_instance():
             MaxCount=1,
             InstanceType="t2.micro",
             KeyName="TeleKey")
-        contador=contador+1
+        time.sleep(1)
         get_new_instance()
         
     except Exception as e:
@@ -76,17 +75,15 @@ def terminate_ec2_instance(instance_id):
         print ("Terminate EC2 instance")
         print(resource_ec2.terminate_instances(InstanceIds=[instance_id]))
         newInstances.remove(instance_id)
-        contador=contador-1
-        return "Instacia " + instance_id+ " terminada"
+        return "Instancia " + instance_id+ " terminada"
     except Exception as e:
         print(e)
         return 
 
 def minimum_instances():
-    if len(newInstances)<2 or contador<2:
-        while len(newInstances)<2 or contador<2: 
+    if len(newInstances)<2:
+        while len(newInstances)<2: 
             create_ec2_instance()
-            time.sleep(10)
 #\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\
 
 def Ping(ipv4_publica):
@@ -108,7 +105,7 @@ def serve():
                 if response.status_code==0:
                     print(ip+" esta activa y la ocupacion de su cpu es de "+ str(response.cpu_usage))
                     if response.cpu_usage>50 and response.cpu_usage<80:
-                        if contador<4 or len(newInstances)<4:
+                        if len(newInstances)<4:
                             create_ec2_instance()
                     elif response.cpu_usage>80:
                         terminate_ec2_instance(instance)
