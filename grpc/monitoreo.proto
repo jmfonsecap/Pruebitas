@@ -12,3 +12,6 @@ message HardRequest{
     string container = 2;
 }
 
+service monitoreo{
+    rpc vigilancia(NoRequest) returns (EasyRequest) {}
+}
