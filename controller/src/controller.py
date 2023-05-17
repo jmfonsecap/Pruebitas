@@ -16,21 +16,25 @@ oldInstances=[]
 newInstances=[]
 
 resource_ec2 = boto3.client("ec2", 
-                            aws_access_key_id='ASIA5KF4RYNQ5REV6EXA',
-                            aws_secret_access_key='eYNElknn1U3ErrhnNtqNB9zitP7v8U2oRI6dutsJ',
-                            aws_session_token='FwoGZXIvYXdzEO3//////////wEaDDSTi8EZMptRjsmBXyLHAVWzJZIquyW7ajnaXCD8PkHizqdc90pUg8rekG5ZFDfSpDq+gVHP4YrxuH+tdkEsAxGKUUTaAWfsr7Qo7G6Y9wo0FjGkUw+Slw3cvutJfRSwrajIMOOWbUqoTLphJkniAuwQ7zWIVobfJf/y7YQOnt4SmtNmprBUAutK9Rh89awef95QKDtC0zHH1etSqTh61+1+fQTFXtRLXSamCnnl1MAYduEjEcJWtVTNigBQ0kRZ3nbkLnY28je0qXZ8cbrSwMkzJN0s+JUo3fiEowYyLZA1Cr+fhqd88qv9tr+9e13cLwMz75evyIvh8HcFLV3VFuP7D+V/gnM2oRso4Q==',
+                            aws_access_key_id="ASIATJHWQLIKB7OJFC73",
+                            aws_secret_access_key="GabhRTwNrAEkns+SiPGVPAIfAUpKLDSd+QriLRrz",
+                            aws_session_token="FwoGZXIvYXdzEC0aDO/dfkzGTx9jxnF24CLIAZk1L/2rCfnwG48JwpT4ptqHJZdTAWx9EJcrig+O/0O+e84cjD6nyDMedCn0DLby9VWDq3lmCJX27Rm4r7V1WFvwB3SABRMnlcPtVVZ7DKtTGyoR/P3yA300w7lR/hgL/OrJofTSmoqe8Gj5atUr0FmpiRl5BiznG9CpuJrezji3BIdFoLFbWnNeuAYcNXFnuYoL2nAFSBVOxJ4bEa91aVrCpjSnX4bdq+Mof/n3smoRM2DfXs3qxrboGRRpRrya2+qgDYE/OgoaKOTwkqMGMi3Et/4FkonLNk9rmmemYFBjTI1QajvOxYjeiYyyDyE7IcfpoF3gDy6Aka37dys=",
                             region_name='us-east-1')
+
+lt = {
+    'LaunchTemplateId': 'lt-0b369b2430457df2b',
+}
 
 def create_ec2_instance():
     get_old_instances()
     try:
         print ("Creating EC2 instance")
         resource_ec2.run_instances(
-            ImageId="ami-0242669d1b95f4db5",
+            LaunchTemplate=lt,
             MinCount=1,
             MaxCount=1,
             InstanceType="t2.micro",
-            KeyName="Andres")
+            KeyName="TeleKey")
         get_new_instance()
         
     except Exception as e:
@@ -79,32 +83,55 @@ def minimum_instances():
     if len(newInstances)<2:
         while len(newInstances)<2: 
             create_ec2_instance()
+            time.sleep(10)
 #\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\
 
 def Ping(ipv4_publica):
-    with grpc.insecure_channel(ipv4_publica+":8080") as channel:
+    with grpc.insecure_channel(ipv4_publica+":5000") as channel:
         stub = controller_pb2_grpc.controllerStub(channel)
         response = stub.Ping(controller_pb2.Nada())
     return response
 def serve():
     starttime = time.time()
+    minimum_instances()
+    print("waiting for instances to launch")
+    time.sleep(120)
     while True:
         minimum_instances()
-        print("waiting for instances to launch")
-        time.sleep(50)
-        
-        ip = ""
-        response= Ping(ip)
-        if response.status_code==0:
-            print(ip+" esta activa y la ocupacion de su cpu es de "+ response.cpu_usage)
-            if response.cpu_usage>50 and len(newInstances)<4 :
-                print("creando instancia")
-            elif response.cpu_usage>80:
-                print("borrando instancia")
-        else:
-            print(" esta caida" )
+        for instance in newInstances:
+            ip = get_ipv4(instance)
+            try:
+                response= Ping(ip)
+                if response.status_code==0:
+                    print(ip+" esta activa y la ocupacion de su cpu es de "+ str(response.cpu_usage))
+                    if response.cpu_usage>50 and len(newInstances)<4 and response.cpu_usage<80:
+                        create_ec2_instance()
+                    elif response.cpu_usage>80:
+                        terminate_ec2_instance(instance)
+            except Exception as e:
+                print(e)
+            
         time.sleep(30.0-((time.time() - starttime)%30.0))
+    
+def serve2():
+    while True:
+        starttime = time.time()
+        ip = "54.172.209.59"
+        try:
+            response= Ping(ip)
+            if response.status_code==0:
+                print(ip+" esta activa y la ocupacion de su cpu es de "+ str(response.cpu_usage))
+                if response.cpu_usage>50 and len(newInstances)<4 and response.cpu_usage<80:
+                    #create_ec2_instance()
+                    print("hola")
+                elif response.cpu_usage>80:
+                    #terminate_ec2_instance(instance)
+                    print("hola")
+        except Exception as e:
+            print(e)
+
+        time.sleep(5.0-((time.time() - starttime)%5.0))
 
 if __name__ == '__main__':
     logging.basicConfig()
-    serve()
+    serve2()
