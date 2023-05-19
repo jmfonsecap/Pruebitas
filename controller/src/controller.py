@@ -19,7 +19,7 @@ newInstances=[]
 resource_ec2 = boto3.client("ec2", 
                             aws_access_key_id="ASIATJHWQLIKI4AAH3YS",
                             aws_secret_access_key="9ww0Y0cOXkZCPm4BIf+cz/bOLpMhW6Kshv96u3T0",
-                            aws_session_token="FwoGZXIvYXdzEFgaDC9zjHy4e0CV0F4y6SLIAfvt6NPHnj0jmF2QTadQF94MKpovV3wDH/+18Sshs6atiShY4F1v2GUzFPZqO+GjyUmjhbbbYJt8+bbqduVGvfybymE57+QyD2sSQnYKqiArDfV9eAubijoXIxXVcKIu+Sh8boddxt4giubSCSQTJ6PQz9MtdYzjKe3fjCmyWFCc1a31VlnBnl0OJPUQGmvO7d/2qGmZwJiNGnaYXjJueJbaNuisyzuguzjK1Z4cVf9Q0UjX7Qo1redmQurNrMUU54xjKS6IJSjKKM2jnKMGMi15shNuUlaaC1mIRnVFNIg7LIsmCGt/GakdSAp7jYydx7sZKmvBZKV1HxZp8uk="",
+                            aws_session_token="FwoGZXIvYXdzEFgaDC9zjHy4e0CV0F4y6SLIAfvt6NPHnj0jmF2QTadQF94MKpovV3wDH/+18Sshs6atiShY4F1v2GUzFPZqO+GjyUmjhbbbYJt8+bbqduVGvfybymE57+QyD2sSQnYKqiArDfV9eAubijoXIxXVcKIu+Sh8boddxt4giubSCSQTJ6PQz9MtdYzjKe3fjCmyWFCc1a31VlnBnl0OJPUQGmvO7d/2qGmZwJiNGnaYXjJueJbaNuisyzuguzjK1Z4cVf9Q0UjX7Qo1redmQurNrMUU54xjKS6IJSjKKM2jnKMGMi15shNuUlaaC1mIRnVFNIg7LIsmCGt/GakdSAp7jYydx7sZKmvBZKV1HxZp8uk=",
                             region_name='us-east-1')
 
 lt = {
