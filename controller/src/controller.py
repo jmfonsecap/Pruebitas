@@ -12,7 +12,7 @@ HOST = '[::]:8080'
 my_session = boto3.session.Session()
 
 with open("Archivo.txt", 'w') as archivo:
-    f.write('Log start\n')
+    archivo.write('Log start\n')
 oldInstances=[]
 newInstances=[]
 
