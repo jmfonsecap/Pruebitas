@@ -11,7 +11,8 @@ import controller_pb2_grpc
 HOST = '[::]:8080'
 my_session = boto3.session.Session()
 
-archivo = open('archivo.txt', 'w')
+with open("Archivo.txt", 'w') as archivo:
+    f.write('Log start\n')
 oldInstances=[]
 newInstances=[]
 
@@ -28,6 +29,8 @@ lt = {
 def create_ec2_instance():
     get_old_instances()
     try:
+        global archivo
+        archivo.write("Creating EC2 instance")
         print ("Creating EC2 instance")
         resource_ec2.run_instances(
             LaunchTemplate=lt,
@@ -71,6 +74,7 @@ def get_ipv4(instance_id):
 
 def terminate_ec2_instance(instance_id):
     try:
+        global archivo
         archivo.write("Terminate EC2 instance")
         print("Terminate EC2 instance")
         util=resource_ec2.terminate_instances(InstanceIds=[instance_id])
@@ -94,8 +98,7 @@ def Ping(ipv4_publica):
         response = stub.Ping(controller_pb2.Nada())
     return response
 def serve():
-    with open('archivo.txt', 'w') as archivo:
-        archivo.truncate()
+    global archivo
     starttime = time.time()
     minimum_instances()
     print("waiting for instances to launch")
