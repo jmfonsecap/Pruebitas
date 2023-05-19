@@ -11,8 +11,8 @@ import controller_pb2_grpc
 HOST = '[::]:8080'
 my_session = boto3.session.Session()
 
-with open("Archivo.txt", 'w') as archivo:
-    archivo.write('Log start\n')
+archivo = open('archivo.txt', 'w')
+
 oldInstances=[]
 newInstances=[]
 
