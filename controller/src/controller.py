@@ -11,7 +11,7 @@ import controller_pb2_grpc
 HOST = '[::]:8080'
 my_session = boto3.session.Session()
 
-
+archivo = open('archivo.txt', 'w')
 oldInstances=[]
 newInstances=[]
 
@@ -67,13 +67,15 @@ def get_new_instance():
 def get_ipv4(instance_id):
     response = resource_ec2.describe_instances(InstanceIds=[instance_id])
     ipv4_publico = response['Reservations'][0]['Instances'][0]['PublicIpAddress']
-    print(f"La dirección IPv4 pública de la instancia {instance_id} es {ipv4_publico}")
     return ipv4_publico
 
 def terminate_ec2_instance(instance_id):
     try:
-        print ("Terminate EC2 instance")
-        print(resource_ec2.terminate_instances(InstanceIds=[instance_id]))
+        archivo.write("Terminate EC2 instance")
+        print("Terminate EC2 instance")
+        util=resource_ec2.terminate_instances(InstanceIds=[instance_id])
+        archivo.write(util)
+        print(util)
         newInstances.remove(instance_id)
         return "Instancia " + instance_id+ " terminada"
     except Exception as e:
@@ -92,9 +94,12 @@ def Ping(ipv4_publica):
         response = stub.Ping(controller_pb2.Nada())
     return response
 def serve():
+    with open('archivo.txt', 'w') as archivo:
+        archivo.truncate()
     starttime = time.time()
     minimum_instances()
     print("waiting for instances to launch")
+    archivo.write("waiting for instances to launch")
     time.sleep(180)
     while True:
         minimum_instances()
@@ -104,6 +109,7 @@ def serve():
                 response= Ping(ip)
                 if response.status_code==0:
                     print(ip+" esta activa y la ocupacion de su cpu es de "+ str(response.cpu_usage))
+                    archivo.write(ip+" esta activa y la ocupacion de su cpu es de "+ str(response.cpu_usage))
                     if response.cpu_usage>50 and response.cpu_usage<80:
                         if len(newInstances)<4:
                             create_ec2_instance()
@@ -111,6 +117,7 @@ def serve():
                         terminate_ec2_instance(instance)
             except:
                 print(ip+" esta prendiendo")
+                archivo.write(ip+" esta prendiendo")
             
         time.sleep(30.0-((time.time() - starttime)%30.0))
 
@@ -122,6 +129,7 @@ def serve2():
             response= Ping(ip)
             if response.status_code==0:
                 print(ip+" esta activa y la ocupacion de su cpu es de "+ str(response.cpu_usage))
+                
                 if response.cpu_usage>50 and len(newInstances)<4 and response.cpu_usage<80:
                     #create_ec2_instance()
                     print("hola")
