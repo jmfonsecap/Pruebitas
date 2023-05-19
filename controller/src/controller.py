@@ -17,9 +17,9 @@ oldInstances=[]
 newInstances=[]
 
 resource_ec2 = boto3.client("ec2", 
-                            aws_access_key_id="ASIATJHWQLIKI4AAH3YS",
-                            aws_secret_access_key="9ww0Y0cOXkZCPm4BIf+cz/bOLpMhW6Kshv96u3T0",
-                            aws_session_token="FwoGZXIvYXdzEFgaDC9zjHy4e0CV0F4y6SLIAfvt6NPHnj0jmF2QTadQF94MKpovV3wDH/+18Sshs6atiShY4F1v2GUzFPZqO+GjyUmjhbbbYJt8+bbqduVGvfybymE57+QyD2sSQnYKqiArDfV9eAubijoXIxXVcKIu+Sh8boddxt4giubSCSQTJ6PQz9MtdYzjKe3fjCmyWFCc1a31VlnBnl0OJPUQGmvO7d/2qGmZwJiNGnaYXjJueJbaNuisyzuguzjK1Z4cVf9Q0UjX7Qo1redmQurNrMUU54xjKS6IJSjKKM2jnKMGMi15shNuUlaaC1mIRnVFNIg7LIsmCGt/GakdSAp7jYydx7sZKmvBZKV1HxZp8uk=",
+                            aws_access_key_id="ASIATJHWQLIKFDOLVMWO",
+                            aws_secret_access_key="F+dnkgcftXE6U672PslwlfbpXd/GI+FeIehqW+Dw",
+                            aws_session_token="FwoGZXIvYXdzEGEaDJiNrhUn9WbaiWjTbSLIAQznoKkQdp61smfAAtn0Evn6+COGfjzSxM1O9immTJhAzJu9Uw04HUXnbfeKy2h+ZDW2S9Fmdw8pu4DaOiTJUzetpIcFZ4Eg1mPPPI7UjXzE6wBkqPBK76KUjEdPfTHGJRPo1DSaER5rhUBbae+Efho1zC9u8/qG4jJmGGGyT696aV8agT04h4/Cgo2ubg0eq8BQdgBfslnqaI6s9yP3VR9ngzJ68cBd3ew8zEaEwfrHHiWtwFHabqQfsCHwusEKy7Kfy2axQ8TTKJygnqMGMi1DOa9K7jl6s0TzoPglKG95TRtRHiMOeesv8z8CtwP8Ia3w1FEj7EGlFPym9x0=",
                             region_name='us-east-1')
 
 lt = {
@@ -30,7 +30,7 @@ def create_ec2_instance():
     get_old_instances()
     try:
         global archivo
-        archivo.write("Creating EC2 instance")
+        archivo.write("Creating EC2 instance\n")
         print ("Creating EC2 instance")
         resource_ec2.run_instances(
             LaunchTemplate=lt,
@@ -75,10 +75,10 @@ def get_ipv4(instance_id):
 def terminate_ec2_instance(instance_id):
     try:
         global archivo
-        archivo.write("Terminate EC2 instance")
+        archivo.write("Terminate EC2 instance\n")
         print("Terminate EC2 instance")
         util=resource_ec2.terminate_instances(InstanceIds=[instance_id])
-        archivo.write(util)
+        archivo.write(str(util)+"\n")
         print(util)
         newInstances.remove(instance_id)
         return "Instancia " + instance_id+ " terminada"
@@ -102,7 +102,7 @@ def serve():
     starttime = time.time()
     minimum_instances()
     print("waiting for instances to launch")
-    archivo.write("waiting for instances to launch")
+    archivo.write("waiting for instances to launch\n")
     time.sleep(180)
     while True:
         minimum_instances()
@@ -112,7 +112,7 @@ def serve():
                 response= Ping(ip)
                 if response.status_code==0:
                     print(ip+" esta activa y la ocupacion de su cpu es de "+ str(response.cpu_usage))
-                    archivo.write(ip+" esta activa y la ocupacion de su cpu es de "+ str(response.cpu_usage))
+                    archivo.write(ip+" esta activa y la ocupacion de su cpu es de "+ str(response.cpu_usage)+"\n")
                     if response.cpu_usage>50 and response.cpu_usage<80:
                         if len(newInstances)<4:
                             create_ec2_instance()
@@ -120,7 +120,7 @@ def serve():
                         terminate_ec2_instance(instance)
             except:
                 print(ip+" esta prendiendo")
-                archivo.write(ip+" esta prendiendo")
+                archivo.write(ip+" esta prendiendo\n")
             
         time.sleep(30.0-((time.time() - starttime)%30.0))
 
