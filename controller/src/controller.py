@@ -16,9 +16,9 @@ oldInstances=[]
 newInstances=[]
 
 resource_ec2 = boto3.client("ec2", 
-                            aws_access_key_id="ASIATJHWQLIKHMRBX33N",
-                            aws_secret_access_key="Lxuhfw/1QbplOPLiGVdcV3mZysdm11iJdEksyDVV",
-                            aws_session_token="FwoGZXIvYXdzEDEaDDSofgEtCoULlhPnYCLIAXh0RZwJrFppEd0BgIb1DbdWAMyAEB+gSRuakWd3F7SU96QokZd81Tj+r1XUkL7AVQMKiLnFv8Zomx8tGyLV6s/8niMcCTOsXTBRvAjDA5c6jtZs91dL3XQkFJ1YR0aUSP0fIX28BNWRW1pxJcDTO/JL+0q5bhBR8KCd2JU1xBEyrI3+nXNZyMd1j9rfgsni5qROvapb9tROvF6GrQxruaS4s1/83iJcoLY9jI0IQXCMZQ68slJzMGAlf5OwRS4c6FKJqmFfJvBKKIbik6MGMi3714yu6tchfkRxGZA64fHfomou8lwyYqhADsbTofRZO5zXQ/e1O+lm9e60IBo=",
+                            aws_access_key_id="ASIATJHWQLIKI4AAH3YS",
+                            aws_secret_access_key="9ww0Y0cOXkZCPm4BIf+cz/bOLpMhW6Kshv96u3T0",
+                            aws_session_token=FwoGZXIvYXdzEFgaDC9zjHy4e0CV0F4y6SLIAfvt6NPHnj0jmF2QTadQF94MKpovV3wDH/+18Sshs6atiShY4F1v2GUzFPZqO+GjyUmjhbbbYJt8+bbqduVGvfybymE57+QyD2sSQnYKqiArDfV9eAubijoXIxXVcKIu+Sh8boddxt4giubSCSQTJ6PQz9MtdYzjKe3fjCmyWFCc1a31VlnBnl0OJPUQGmvO7d/2qGmZwJiNGnaYXjJueJbaNuisyzuguzjK1Z4cVf9Q0UjX7Qo1redmQurNrMUU54xjKS6IJSjKKM2jnKMGMi15shNuUlaaC1mIRnVFNIg7LIsmCGt/GakdSAp7jYydx7sZKmvBZKV1HxZp8uk="",
                             region_name='us-east-1')
 
 lt = {
